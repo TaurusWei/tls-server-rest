@@ -1,0 +1,17 @@
+# 编译
+FROM golang:1.13 as builder
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ADD . /go/src/cncc/cbas/
+WORKDIR /go/src/cncc/cbas
+RUN cp ./libs/* /usr/lib
+RUN make cbas-cncc
+
+
+FROM ubuntu:cncc
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+COPY --from=builder /go/src/cncc/cbas/libs/* /usr/lib/
+COPY --from=builder /go/src/cncc/cbas/bin/cbas /usr/local/bin
+WORKDIR /opt/cbas/
+ENTRYPOINT ["cbas"]

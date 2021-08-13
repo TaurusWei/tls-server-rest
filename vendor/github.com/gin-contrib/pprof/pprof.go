@@ -1,8 +1,8 @@
 package pprof
 
 import (
-	"net/http"
-	"net/http/pprof"
+	http "net/http1"
+	"net/http1/pprof"
 
 	"github.com/gin-gonic/gin"
 )

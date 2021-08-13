@@ -8,32 +8,95 @@ package main
  */
 
 import (
-	"test/router"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/unrolled/secure"
+	"runtime"
+	"strconv"
+	"time"
+	"tls-server-rest/backend/dao"
+	"tls-server-rest/common/config"
+	"tls-server-rest/common/log"
+	"tls-server-rest/router"
+	"tls-server-rest/service"
 )
 
-//func handler(w http.ResponseWriter, r *http.Request) {
-//
-//	if r.URL.Path[1:] == "EXIT" {
-//		os.Exit(0)
-//	}else if r.URL.Path[1:] == "genP10" {
-//		fmt.Fprintf(w, "Hi there, I love %s!\n", "SCONE")
-//		p10, _ := GenP10(34997, "12", RandStringInt(), "SM2")
-//		fmt.Fprintf(w, "p10 = %s\n",p10)
-//	}
-//}
+const config_yaml = "./config/config.yaml"
+const ocinfo_yaml = "./config/ocinfo.yaml"
 
-//func main() {
-//	http.HandleFunc("/", handler)
-//	http.ListenAndServe(":9443", nil)
-//}
+func initLogging() {
+	defaultFormat := "%{color}%{time:2006-01-02 15:04:05.000} %{shortfile:15s} [->] %{shortfunc:-10s} %{level:.4s} %{id:03x}%{color:reset} %{message}"
+	defaultLevel := "DEBUG"
+	cfg := config.GetLogConfig()
+	if len(cfg.Formatter) == 0 {
+		cfg.Formatter = defaultFormat
+	}
+	if len(cfg.Level) == 0 {
+		cfg.Level = defaultLevel
+	}
+	fmt.Println("=== 日志设置 ===")
+	fmt.Println(*cfg)
+	log.InitLog(cfg.Formatter, cfg.Level)
+}
+func checkMem() {
+	var status runtime.MemStats
+	ticker := time.NewTicker(time.Second * 60)
+	for {
+		<-ticker.C
+		runtime.ReadMemStats(&status)
+		log.Info("HeapAlloc:", status.HeapAlloc)
+		log.Info("NumGoroutine:", runtime.NumGoroutine())
+	}
+}
+
+func init() {
+	// 从配置文件读取配置
+	config.InitConfig([]string{config_yaml, ocinfo_yaml})
+
+	// 初始化日志
+	initLogging()
+
+}
 func main() {
-	//r := gin.Default()
-	//r.GET("/", func(c *gin.Context) {
-	//	c.String(200, "Hello, Geektutu")
-	//})
-	//r.Run(":9443") // listen and serve on 0.0.0.0:8080
+	//数据库连接
+	dao.OpenSqlDb()
+	defer dao.CloseSqlDb()
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Error(err)
+		}
+	}()
+
+	// 初始化service
+	service.NewService(config_yaml)
+
+	//go checkMem()
 
 	route := router.CreateRouter()
-	route.Run(":9443")
+	// todo listenAddress
+	portString := config.GetRestfulListenAddress()
+	port, err := strconv.Atoi(portString)
+	if err != nil {
+		panic("parse server port:" + portString + " err: " + err.Error())
+	}
+	route.Use(TlsHandler(port))
+	// todo listenAddress   tls.server.cert   tls.server.key
+	route.RunTLS(":"+config.GetRestfulListenAddress(), config.GetTlsServerCert(), config.GetTlsServerKey())
+}
 
+func TlsHandler(port int) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     ":" + strconv.Itoa(port),
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+
+		if err != nil {
+			return
+		}
+
+		c.Next()
+	}
 }

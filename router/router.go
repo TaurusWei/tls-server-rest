@@ -9,7 +9,7 @@ package router
 
 import (
 	"github.com/gin-contrib/pprof"
-	"test/service"
+	"tls-server-rest/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +19,8 @@ func CreateRouter() *gin.Engine {
 	router := gin.Default()
 	pprof.Register(router)
 
-	router.POST("/test/genP10/:keyType", service.GenP10)
+	//router.POST("/test/genP10/:keyType", service.GenP10)
+	router.POST("/invoke", service.Invoke)
 
 	return router
 }

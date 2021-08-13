@@ -1,0 +1,16 @@
+# 编译
+FROM golang:1.13 as builder
+ADD . /go/src/cncc/cbas/
+WORKDIR /go/src/cncc/cbas
+RUN cp ./libs/* . && cp ./librenhangapi.so /usr/lib/ && cp ./RHVerifyAPI.h /usr/lib && cp ./libltdl.so.7 /usr/lib && dpkg -i *.deb
+#RUN apt-get update && apt install -y libltdl3-dev
+#RUN dpkg -i *.deb
+RUN make cbas-cncc
+
+
+FROM ubuntu:18.04
+
+COPY --from=builder /go/src/cncc/cbas/libs/* /usr/lib/
+COPY --from=builder /go/src/cncc/cbas/bin/cbas /usr/local/bin
+WORKDIR /opt/cbas/
+ENTRYPOINT ["cbas"]
