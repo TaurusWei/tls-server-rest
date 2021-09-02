@@ -95,3 +95,7 @@ func TestParseCert(t *testing.T) {
 	t.Log(caCert.Subject.CommonName)
 	t.Log(caCert.NetWorkId)
 }
+func Test1(t *testing.T) {
+	fmt.Println("tom\tjack")
+	fmt.Println(fmt.Sprintf("%s\t%s", "tom", "jack"))
+}

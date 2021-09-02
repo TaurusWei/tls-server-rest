@@ -142,14 +142,14 @@ func InvokeTest(c *gin.Context) {
 func invoke(request model.Envelope) (*model.Envelope, error) {
 	verify, err := util.Verify(request.Sig, request.Data, request.Certificate)
 	if err != nil || !verify {
-		logger.Errorf("The request data cannot be verified: %s", err.Error())
+		logger.Error(util.GetErrorStack(err, "The request data cannot be verified"))
 		return nil, errors.WithMessagef(err, "The request data cannot be verified")
 	}
 	requestData := request.Data
 	queryBaseInfo := model.QueryBaseInfo{}
 	err = json.Unmarshal(requestData, &queryBaseInfo)
 	if err != nil {
-		logger.Errorf("Unmarshal QueryBaseInfo error: %s", err.Error())
+		logger.Error(util.GetErrorStack(err, "Unmarshal QueryBaseInfo error"))
 		return nil, errors.WithMessagef(err, "Unmarshal QueryBaseInfo error")
 	}
 	logger.Infof("request info: %v", queryBaseInfo)
@@ -157,10 +157,9 @@ func invoke(request model.Envelope) (*model.Envelope, error) {
 	var res *http.Response
 	url := viper.GetString(queryBaseInfo.ContractName)
 	if url == "" {
-		logger.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+		logger.Error(util.NewErrorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName).Error())
 		return nil, errors.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
 	}
-	//url = "http://47.95.204.66:34997/brilliance/netsign/genP1"
 	// todo  add get method
 	if strings.HasPrefix(url, "https://") {
 		if strings.EqualFold(queryBaseInfo.Method, "post") {
@@ -177,13 +176,13 @@ func invoke(request model.Envelope) (*model.Envelope, error) {
 	}
 
 	if err != nil {
-		logger.Errorf("query data error: %s", err.Error())
+		logger.Error(util.GetErrorStack(err, "query data error"))
 		return nil, errors.WithMessagef(err, "query data error")
 	}
 	defer res.Body.Close()
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		logger.Errorf("read response body error: %s", err.Error())
+		logger.Error(util.GetErrorStack(err, "read response body error"))
 		return nil, errors.WithMessagef(err, "read response body error")
 	}
 
