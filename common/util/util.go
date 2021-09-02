@@ -5,8 +5,6 @@ import (
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/pkg/errors"
 	"github.com/tjfoc/gmsm/sm2"
-	"io/ioutil"
-	"tls-server-rest/common/config"
 	"tls-server-rest/common/global"
 )
 
@@ -24,16 +22,7 @@ func Sign(data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithMessagef(err, "计算哈希失败, data = %s ", base64.StdEncoding.EncodeToString(data))
 	}
-	// todo sign.cert
-	certBytes, err := ioutil.ReadFile(config.GetServerCert())
-	if err != nil {
-		return nil, errors.WithMessagef(err, "读取签名证书失败, path = %s ", config.GetServerCert())
-	}
-	cert, err := sm2.ReadCertificateFromMem(certBytes)
-	if err != nil {
-		return nil, errors.WithMessagef(err, "解析签名证书失败, cert = %s", string(certBytes))
-	}
-	signatrure, err := global.Verifier.Sign(cert.SubjectKeyId, hash)
+	signatrure, err := global.Verifier.Sign(global.Cert.SubjectKeyId, hash)
 	if err != nil {
 		return nil, err
 	}

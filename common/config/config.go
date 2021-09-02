@@ -8,9 +8,15 @@ package config
  */
 
 import (
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"github.com/tjfoc/gmsm/sm2"
+	"io/ioutil"
 	"math/rand"
+	"strings"
 	"time"
+	"tls-server-rest/common/global"
+
 	//logger "github.com/sirupsen/logrus"
 	logger "tls-server-rest/common/log"
 )
@@ -31,29 +37,56 @@ type LogConfig struct {
 
 // 从配置文件的路径读取配置
 func InitConfig(files []string) error {
+
+	logger.Info("加载环境变量")
+	viper.AutomaticEnv()
+	//viper.SetEnvPrefix("C/)
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
 	logger.Info("加载配置文件")
 	for index, file := range files {
 		viper.SetConfigFile(file)
 		if 0 == index {
 			if err := viper.ReadInConfig(); err != nil {
 				if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-					logger.Error("No such config file, please check the config file path!")
+					logger.Errorf("No such config file: %s, please check the config file path!", file)
+					return errors.Errorf("No such config file: %s, please check the config file path!", file)
 				} else {
-					logger.Errorf("Read config file error，Err:%s", err.Error())
+					logger.Errorf("Read config file error，file: %s, error: %s", file, err.Error())
+					return errors.Errorf("Read config file error，file: %s, error: %s", file, err.Error())
 				}
-				return err
 			}
 		} else {
 			if err := viper.MergeInConfig(); err != nil {
+				//if err := viper.ReadInConfig(); err != nil {
 				if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-					logger.Error("No such config file, please check the config file path!")
+					logger.Errorf("No such config file: %s, please check the config file path!", file)
+					return errors.Errorf("No such config file: %s, please check the config file path!", file)
 				} else {
-					logger.Errorf("Read config file error，Err:%s", err.Error())
+					logger.Errorf("Read config file error，file: %s, error: %s", file, err.Error())
+					return errors.Errorf("Read config file error，file: %s, error: %s", file, err.Error())
 				}
-				return err
 			}
 		}
+		viper.WatchConfig()
 	}
+	return nil
+}
+
+// 初始化签名证书
+func InitCert() error {
+	certBytes, err := ioutil.ReadFile(GetServerCert())
+	if err != nil {
+		logger.Error(errors.WithMessagef(err, "读取签名证书失败, path = %s ", GetServerCert()).Error())
+		return errors.WithMessagef(err, "读取签名证书失败, path = %s ", GetServerCert())
+	}
+	global.CertBytes = certBytes
+	cert, err := sm2.ReadCertificateFromMem(certBytes)
+	if err != nil {
+		logger.Error(errors.WithMessagef(err, "解析签名证书失败, cert = %s", string(certBytes)).Error())
+		return errors.WithMessagef(err, "解析签名证书失败, cert = %s", string(certBytes))
+	}
+	global.Cert = cert
 	return nil
 }
 
@@ -229,6 +262,14 @@ func GetHostName() string {
 }
 
 /**
+  是否开启tls
+*/
+func GetTlsEnable() bool {
+	ret := viper.GetBool("tls.enable")
+	return ret
+}
+
+/**
   获取 tls server cert
 */
 func GetTlsServerCert() string {
@@ -245,9 +286,9 @@ func GetTlsServerKey() string {
 }
 
 /**
-  获取 server ecert  : 签名证书
+  获取 server cert  : 签名证书
 */
 func GetServerCert() string {
-	ret := viper.GetString("server.cert")
+	ret := viper.GetString("server.msp.cert")
 	return ret
 }

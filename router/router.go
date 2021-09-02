@@ -18,9 +18,12 @@ import (
 func CreateRouter() *gin.Engine {
 	router := gin.Default()
 	pprof.Register(router)
+	testGroup := router.Group("/test/")
+	testGroup.POST("/invokeTest", service.InvokeTest)
 
+	oracleGroup := router.Group("/oracle/")
 	//router.POST("/test/genP10/:keyType", service.GenP10)
-	router.POST("/invoke", service.Invoke)
+	oracleGroup.POST("/invoke", service.Invoke)
 
 	return router
 }

@@ -18,8 +18,8 @@ limitations under the License.
 package factory
 
 import (
-	"github.com/tauruswei/go-netsign/netsign"
 	"github.com/hyperledger/fabric/bccsp/cncc"
+	"github.com/tauruswei/go-netsign/netsign"
 	"net"
 	"os"
 	"strconv"

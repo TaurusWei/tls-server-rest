@@ -1,6 +1,9 @@
 package global
 
-import "github.com/hyperledger/fabric/bccsp/verifier"
+import (
+	"github.com/hyperledger/fabric/bccsp/verifier"
+	"github.com/tjfoc/gmsm/sm2"
+)
 
 /**
  * @Author: WeiBingtao/13156050650@163.com
@@ -10,5 +13,7 @@ import "github.com/hyperledger/fabric/bccsp/verifier"
  */
 // Settings
 var (
-	Verifier *verifier.BccspCryptoVerifier
+	Verifier  *verifier.BccspCryptoVerifier
+	Cert      *sm2.Certificate
+	CertBytes []byte
 )

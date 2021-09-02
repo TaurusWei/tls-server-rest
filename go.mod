@@ -33,6 +33,7 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 	github.com/tjfoc/gmsm v1.4.1
+	github.com/tjfoc/gmtls v1.2.1
 	github.com/unrolled/secure v1.0.9
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 )

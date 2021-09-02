@@ -5,11 +5,11 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"github.com/op/go-logging"
-	
-	"github.com/tauruswei/go-netsign/netsign"
+
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/pkg/errors"
+	"github.com/tauruswei/go-netsign/netsign"
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/sm3"
 	"golang.org/x/crypto/sha3"

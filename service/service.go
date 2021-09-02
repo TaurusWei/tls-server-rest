@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"os"
 
 	"github.com/hyperledger/fabric/bccsp/cncc"
 	factory "github.com/hyperledger/fabric/bccsp/factory"
@@ -24,7 +26,6 @@ import (
 	"strings"
 	"sync"
 	"tls-server-rest/backend/dao"
-	config1 "tls-server-rest/common/config"
 	"tls-server-rest/common/global"
 	logger "tls-server-rest/common/log"
 	"tls-server-rest/common/util"
@@ -46,47 +47,27 @@ type CryptoConfig struct {
 
 func NewService(config string) (bccsp.BCCSP, error) {
 	configPath = config
-	//获取网络信息
-	// todo networkName
-	networks, err := dao.GetNetworkByName(config1.GetConnStru().NetworkName)
-	if err != nil || len(networks) == 0 {
-		logger.Errorf("查询网络信息失败: %s", err.Error())
-		return nil, fmt.Errorf("查询网络信息失败: %s", err.Error())
-	}
-	network := networks[0]
-	//cryptoConfig只初始化一次，每次复用
-	// todo networkName
-	signServers, err := dao.GetAllSignServiceInfo(config1.GetConnStru().NetworkName)
-	if err != nil {
-		logger.Errorf("查询签名服务器信息失败: %s", err.Error())
-		return nil, fmt.Errorf("查询签名服务器信息失败: %s", err.Error())
-	}
-	// todo ClusterAddr.center
-	ip, port, password := combinNetsignsUsedForBaas(signServers, config1.GetClusterAddr())
-	var signServerInfo []cncc.NetSignConfig
-	signServerInfo0 := cncc.NetSignConfig{
-		Ip:     ip,
-		Port:   port,
-		Passwd: password,
-	}
-	signServerInfo = append(signServerInfo, signServerInfo0)
-	cryptoConfig.Provider = network.CryptoProvider
-	cryptoConfig.netsigns = signServerInfo[0]
-	cryptoConfig.networkId = strconv.Itoa(network.Id)
 
 	opts := factory.GetDefaultOpts()
-	opts.ProviderName = network.CryptoProvider
-	opts.CNCC_GMOpts.Ip = cryptoConfig.netsigns.Ip
-	opts.CNCC_GMOpts.Port = cryptoConfig.netsigns.Port
-	opts.CNCC_GMOpts.Password = cryptoConfig.netsigns.Passwd
-	opts.CNCC_GMOpts.NetWorkId = cryptoConfig.networkId
 
 	csp, err := (&factory.CNCC_GMFactory{}).Get(opts)
 	if err != nil {
 		logger.Errorf("获取 Bccsp 实例失败：%s", err.Error())
-		return nil, fmt.Errorf("获取Bccsp实例失败：%s", err.Error())
+		panic("获取Bccsp实例失败：" + err.Error())
 	}
-	factory.SetBCCSP(network.CryptoProvider, csp)
+	factory.SetBCCSP(opts.ProviderName, csp)
+
+	// 检查 两个中心的 签名服务器的连通性
+
+	time1 := os.Getenv("NETSIGN_HEALTH_CHECK_TIME")
+	if time1 == "" {
+		time1 = "60"
+	}
+	health_check_time, err := strconv.Atoi(time1)
+	if err != nil {
+		panic("get netsign health check time error")
+	}
+	go factory.TimeTick(health_check_time)
 
 	verifier, err := verifier.New(csp, nil)
 	if err != nil {
@@ -142,6 +123,22 @@ func Invoke(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+func InvokeTest(c *gin.Context) {
+
+	request := model.QueryBaseInfo{}
+	err := model.GetBody(c.Request.Body, &request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	result, err := invokeTest(request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
 func invoke(request model.Envelope) (*model.Envelope, error) {
 	verify, err := util.Verify(request.Sig, request.Data, request.Certificate)
 	if err != nil || !verify {
@@ -158,23 +155,101 @@ func invoke(request model.Envelope) (*model.Envelope, error) {
 	logger.Infof("request info: %v", queryBaseInfo)
 	bytesData, _ := json.Marshal(queryBaseInfo.Params)
 	var res *http.Response
+	url := viper.GetString(queryBaseInfo.ContractName)
+	if url == "" {
+		logger.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+		return nil, errors.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+	}
+	//url = "http://47.95.204.66:34997/brilliance/netsign/genP1"
 	// todo  add get method
-	if strings.HasPrefix(queryBaseInfo.Url, "https://") {
+	if strings.HasPrefix(url, "https://") {
 		if strings.EqualFold(queryBaseInfo.Method, "post") {
-			res, err = Client.Post(queryBaseInfo.Url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
+			res, err = Client.Post(url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
 		} else {
-			res, err = Client.Get(queryBaseInfo.Url)
+			res, err = Client.Get(url)
 		}
 	} else {
 		if strings.EqualFold(queryBaseInfo.Method, "post") {
-			res, err = http.Post(queryBaseInfo.Url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
+			res, err = http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
 		} else {
-			res, err = http.Get(queryBaseInfo.Url)
+			res, err = http.Get(url)
+		}
+	}
+
+	if err != nil {
+		logger.Errorf("query data error: %s", err.Error())
+		return nil, errors.WithMessagef(err, "query data error")
+	}
+	defer res.Body.Close()
+	content, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		logger.Errorf("read response body error: %s", err.Error())
+		return nil, errors.WithMessagef(err, "read response body error")
+	}
+
+	//if res.StatusCode!=200{
+	//	//logger.Errorf("query data error: %v", res)
+	//	//return nil, errors.Errorf("query data error: %s", res.)
+	//	resp := make(map[string]interface{})
+	//	err := json.Unmarshal(content, &resp)
+	//	if err != nil {
+	//		return model.NewErrorResponse(err)
+	//	}
+	//	return model.NewResponse(res.StatusCode,resp["message"])
+	//}
+
+	sig, err := util.Sign(content)
+	if err != nil {
+		logger.Errorf("sign error: %s", err.Error())
+		return nil, err
+	}
+	//// todo sign cert
+	//certBytes, err := ioutil.ReadFile(config1.GetServerCert())
+	//if err != nil {
+	//	logger.Errorf("读取签名证书失败, path = %s , error: ", config1.GetServerCert(), err.Error())
+	//	return nil, errors.WithMessagef(err, "读取签名证书失败, path = %s ", config1.GetServerCert())
+	//}
+	envelope := &model.Envelope{
+		Data:        content,
+		Sig:         sig,
+		Certificate: global.CertBytes,
+	}
+	return envelope, nil
+}
+func invokeTest(request model.QueryBaseInfo) (*model.Envelope, error) {
+	var err error
+	queryBaseInfo := request
+
+	logger.Infof("request info: %v", queryBaseInfo)
+	bytesData, _ := json.Marshal(queryBaseInfo.Params)
+	var res *http.Response
+	//url:=viper.GetString(queryBaseInfo.ContractName)
+	url := "http://47.95.204.66:34997/brilliance/netsign/genP10"
+	if url == "" {
+		logger.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+		return nil, errors.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+	}
+	// todo  add get method
+	if strings.HasPrefix(url, "https://") {
+		if strings.EqualFold(queryBaseInfo.Method, "post") {
+			res, err = Client.Post(url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
+		} else {
+			res, err = Client.Get(url)
+		}
+	} else {
+		if strings.EqualFold(queryBaseInfo.Method, "post") {
+			res, err = http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer(bytesData))
+		} else {
+			res, err = http.Get(url)
 		}
 	}
 	if err != nil {
 		logger.Errorf("query data error: %s", err.Error())
 		return nil, errors.WithMessagef(err, "query data error")
+	}
+	if res.StatusCode != 200 {
+		logger.Errorf("query data error: %v", res)
+		return nil, errors.Errorf("query data error: %v", res)
 	}
 	defer res.Body.Close()
 
@@ -189,16 +264,10 @@ func invoke(request model.Envelope) (*model.Envelope, error) {
 		logger.Errorf("sign error: %s", err.Error())
 		return nil, err
 	}
-	// todo sign cert
-	certBytes, err := ioutil.ReadFile(config1.GetServerCert())
-	if err != nil {
-		logger.Errorf("读取签名证书失败, path = %s , error: ", config1.GetServerCert(), err.Error())
-		return nil, errors.WithMessagef(err, "读取签名证书失败, path = %s ", config1.GetServerCert())
-	}
 	envelope := &model.Envelope{
 		Data:        content,
 		Sig:         sig,
-		Certificate: certBytes,
+		Certificate: global.CertBytes,
 	}
 	return envelope, nil
 }

@@ -9,8 +9,8 @@ package cncc
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/tauruswei/go-netsign/netsign"
 	"github.com/miekg/pkcs11"
+	"github.com/tauruswei/go-netsign/netsign"
 	"math/big"
 	"strconv"
 	"sync"

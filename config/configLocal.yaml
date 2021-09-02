@@ -1,0 +1,95 @@
+# 区块链代理相关配置
+#
+# Schema version of the content. Used by the blkproxy to apply the corresponding parsing rules.
+#
+version: 1.0.0
+
+#
+# The server section used by blkproxy.
+#
+server:
+  restful:
+    listenAddress: 9443                # 端口
+    MsgForwardLock: MsgForwardLock     # 报文推送
+    ListenMsgLock: MsgListenLock       # 事件监听
+  logging:
+    formatter: "%{color}%{time:2006-01-02 15:04:05.000} %{shortfile:15s} [->] %{shortfunc:-10s} %{level:.4s} %{id:03x}%{color:reset} %{message}"
+    level: INFO                         # 默认DEBUG
+  docker:
+    hostUpdateInternal: 30s              #同步更新host的间隔
+    enabled: true                         #是否开启host同步
+  pool:
+    GoroutinesNum: 50
+  msp:
+    cert: /opt/go-projects/tls-server-rest/cert/admin.pem
+    key: /opt/go-projects/tls-server-rest/cert/admin.key
+tls:
+  enable: true
+  server:
+    cert: /opt/go-projects/tls-server-rest/cert/admin.pem
+    key: /opt/go-projects/tls-server-rest/cert/admin.key
+#  msp:
+#    cert: /var/hyperledger/brilliance-oracle/msp/admin.crt
+#    key: /var/hyperledger/brilliance-oracle/msp/admin.key
+#tls:
+#  enable: false
+#  server:
+#    cert: /var/hyperledger/brilliance-oracle/tls/server.crt
+#    key: /var/hyperledger/brilliance-oracle/tls/server.key
+
+# 数据库配置
+db:
+  mysql:
+    connection: baas:baas@tcp(172.21.0.1:3306)/baasdb #数据库连接
+#
+# 获取CBAS部署的所在集群中心地址，如北京(BJ)或上海(SH)
+#
+ClusterAddr:
+  centers: SH
+
+client:
+  # [Optional] BCCSP config for the client. Used by GO SDK.
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "CNCC_GM"                  #国密
+      hashAlgorithm: "GMSM3"
+#        provider: "SW"
+#      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+
+#
+# CBAS基础配置
+#
+base:
+  hostname: BCBASAPA    #实例名
+
+#
+# CBAS连接FABRIC身份
+#
+conn:
+  userName: 905290000007
+  networkName: aa
+  channelName: test1
+  contractName: contract01
+  eventType: 0
+  eventFilter: "LCFS_EVT_MSG"
+
+#
+# CBAS作为HTTP Client向COWS/LCFS发送POST请求
+#
+http_client:
+  timeout: 30
+  cows:
+    addr:
+      - http://111.1.12.211:8080/cows/recvmsg
+      - http://111.1.12.212:8080/cows/recvmsg
+    connverfication:
+      - http://111.1.12.211:8080/cows/connverfication
+      - http://111.1.12.212:8080/cows/connverfication
+  lcfs:
+    addr:
+      - http://111.1.11.149:8082/lcfs/recvmsg
+      - http://111.1.11.150:8082/lcfs/recvmsg
