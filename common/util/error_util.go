@@ -25,7 +25,7 @@ func NewErrorf(format string, a ...interface{}) error {
 		return errors.New("WrapError 方法获取堆栈失败")
 	}
 
-	errMsg := fmt.Sprintf("error occur, cause: %s \n\tat %s:%d", fmt.Sprintf(format, a...), f.Name(), line)
+	errMsg := fmt.Sprintf("%s \n\tat %s:%d", fmt.Sprintf(format, a...), f.Name(), line)
 	return errors.New(errMsg)
 }
 
@@ -105,11 +105,11 @@ func GetErrorStack(err error, preStr string) string {
  */
 func GetErrorStackf(err error, preStrFmt string, a ...interface{}) string {
 	preStr := ""
-	if preStrFmt == "" {
-		preStr = defaultErrMsg
-	} else {
-		preStr = fmt.Sprintf(preStrFmt, a...)
-	}
+	//if preStrFmt == "" {
+	//	preStr = defaultErrMsg
+	//} else {
+	preStr = fmt.Sprintf(preStrFmt, a...)
+	//}
 	pc, _, line, ok := runtime.Caller(1)
 	f := runtime.FuncForPC(pc)
 	if !ok {
@@ -122,6 +122,8 @@ func GetErrorStackf(err error, preStrFmt string, a ...interface{}) string {
 			preStr = defaultErrMsg
 		}
 		errMsg = fmt.Sprintf("%s \n\tat %s:%d\nCause by: %s", preStr, f.Name(), line, err.Error())
+	} else {
+		errMsg = fmt.Sprintf("%s \n\tat %s:%d\n", preStr, f.Name(), line)
 	}
 	return errMsg
 }
