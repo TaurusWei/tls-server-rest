@@ -40,17 +40,28 @@ func TestViperEtcd(t *testing.T) {
 }
 func TestViperUpdate(t *testing.T) {
 	viper := viper.New()
-	viper.AddConfigPath("/opt/go/src/github.com/hyperledger")
-	//viper.SetConfigFile("/opt/go/src/github.com/hyperledger/application.yml")
-	viper.SetConfigType("yml")
+	//viper.AddConfigPath("/opt/go/src/github.com/hyperledger")
+	viper.SetConfigFile("/opt/go/src/github.com/hyperledger/application.yml")
+	//viper.SetConfigName("application.yml")
+	//viper.SetConfigType("yml")
 	err := viper.ReadInConfig()
-	t.Log(viper.Get("custom.numbers-1"))
+	//t.Log(viper.Get("custom.numbers-1"))
 	if err != nil {
 		t.Log(err.Error())
 	}
 	viper.WatchConfig()
 
-	viper.Set("BJ", "ACTV")
+	viper.SetConfigFile("/opt/go/src/github.com/hyperledger/application-test.yml")
+	err = viper.MergeInConfig()
+	//t.Log(viper.Get("custom.numbers-1"))
+	if err != nil {
+		t.Log(err.Error())
+	}
+	viper.WatchConfig()
+
+	t.Log(viper.Get("contract01"))
+	t.Log(viper.Get("test01"))
+	//viper.Set("BJ", "ACTV")
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("配置发生变更：", e.Op.String())
@@ -58,8 +69,11 @@ func TestViperUpdate(t *testing.T) {
 		fmt.Println("配置发生变更：", e.String())
 	})
 	time.Sleep(1 * time.Minute)
-	t.Log(viper.Get("server.port"))
-	t.Log(viper.Get("BJ"))
+	t.Log(viper.Get("contract02"))
+	t.Log(viper.Get("test02"))
+	t.Log(viper.Get("test03"))
+	//t.Log(viper.GetInt("server.port"))
+	//t.Log(viper.Get("BJ"))
 
 }
 

@@ -21,6 +21,7 @@ replace github.com/unrolled/secure => ./third_party/github.com/unrolled/secure
 replace github.com/spf13/viper v1.8.1 => github.com/spf13/viper v1.7.1
 
 require (
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-sql-driver/mysql v1.6.0
@@ -31,6 +32,7 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.8.1
+	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/tjfoc/gmtls v1.2.1

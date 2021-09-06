@@ -10,7 +10,7 @@ package router
 import (
 	"github.com/gin-contrib/pprof"
 	"tls-server-rest/service"
-
+	//swaggerFiles "github.com/swaggo/files"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +22,8 @@ func CreateRouter() *gin.Engine {
 	testGroup.POST("/invokeTest", service.InvokeTest)
 
 	oracleGroup := router.Group("/oracle/")
+	// swagger
+	//oracleGroup.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//router.POST("/test/genP10/:keyType", service.GenP10)
 	oracleGroup.POST("/invoke", service.Invoke)
 

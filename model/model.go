@@ -28,6 +28,7 @@ type QueryBaseInfo struct {
 	ContractName string                 `json:contractName,omitempty"` // 应用合约名字
 	Method       string                 `json:"method,omitempty"`      // 请求的方法
 	Params       map[string]interface{} `json:"params,omitempty"`      // 请求的数据
+	SourceUrl    string                 `json:sourceUrl,omitempty"`    // 数据源地址
 }
 
 func GetBody(body io.ReadCloser, v interface{}) error {

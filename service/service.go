@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"os"
 
 	"github.com/hyperledger/fabric/bccsp/cncc"
@@ -33,8 +32,8 @@ import (
 )
 
 var (
-	poolMutex    sync.RWMutex // 读写锁
-	configPath   string       // 配置路径 从配置路径初始化fabricsdk
+	poolMutex sync.RWMutex // 读写锁
+	//configPath   string       // 配置路径 从配置路径初始化fabricsdk
 	cryptoConfig = &CryptoConfig{}
 	Client       *http.Client // https请求客户端
 )
@@ -46,7 +45,7 @@ type CryptoConfig struct {
 }
 
 func NewService(config string) (bccsp.BCCSP, error) {
-	configPath = config
+	//configPath = config
 
 	opts := factory.GetDefaultOpts()
 
@@ -155,11 +154,12 @@ func invoke(request model.Envelope) (*model.Envelope, error) {
 	logger.Infof("request info: %v", queryBaseInfo)
 	bytesData, _ := json.Marshal(queryBaseInfo.Params)
 	var res *http.Response
-	url := viper.GetString(queryBaseInfo.ContractName)
-	if url == "" {
-		logger.Error(util.NewErrorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName).Error())
-		return nil, errors.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
-	}
+	//url := viper.GetString(queryBaseInfo.ContractName)
+	//if url == "" {
+	//	logger.Error(util.NewErrorf("can not find the source url of contract name: %s", queryBaseInfo.ContractName).Error())
+	//	return nil, errors.Errorf("can not find the source url of contract name: %s", queryBaseInfo.ContractName)
+	//}
+	url := queryBaseInfo.SourceUrl
 	// todo  add get method
 	if strings.HasPrefix(url, "https://") {
 		if strings.EqualFold(queryBaseInfo.Method, "post") {
@@ -225,8 +225,8 @@ func invokeTest(request model.QueryBaseInfo) (*model.Envelope, error) {
 	//url:=viper.GetString(queryBaseInfo.ContractName)
 	url := "http://47.95.204.66:34997/brilliance/netsign/genP10"
 	if url == "" {
-		logger.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
-		return nil, errors.Errorf("can not find thd source url of contract name: %s", queryBaseInfo.ContractName)
+		logger.Errorf("can not find the source url of contract name: %s", queryBaseInfo.ContractName)
+		return nil, errors.Errorf("can not find the source url of contract name: %s", queryBaseInfo.ContractName)
 	}
 	// todo  add get method
 	if strings.HasPrefix(url, "https://") {

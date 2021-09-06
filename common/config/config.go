@@ -42,7 +42,6 @@ func InitConfig(files []string) error {
 	viper.AutomaticEnv()
 	//viper.SetEnvPrefix("C/)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-
 	logger.Info("加载配置文件")
 	for index, file := range files {
 		viper.SetConfigFile(file)
@@ -70,6 +69,7 @@ func InitConfig(files []string) error {
 		}
 		viper.WatchConfig()
 	}
+
 	return nil
 }
 

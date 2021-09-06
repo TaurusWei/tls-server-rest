@@ -79,6 +79,8 @@ github.com/spf13/pflag
 github.com/spf13/viper
 # github.com/subosito/gotenv v1.2.0
 github.com/subosito/gotenv
+# github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
+github.com/swaggo/files
 # github.com/tauruswei/go-netsign v0.0.0-20210719104843-ad19de70b31a => ./third_party/github.com/tauruswei/go-netsign
 github.com/tauruswei/go-netsign/netsign
 # github.com/thedevsaddam/gojsonq v2.3.0+incompatible
@@ -116,6 +118,8 @@ golang.org/x/net/http/httpguts
 golang.org/x/net/http/httpproxy
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
+golang.org/x/net/webdav
+golang.org/x/net/webdav/internal/xml
 # golang.org/x/sys v0.0.0-20210423082822-04245dca01da
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
