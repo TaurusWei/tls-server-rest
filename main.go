@@ -23,7 +23,7 @@ import (
 	"tls-server-rest/service"
 )
 
-const config_yaml = "./config/configLocal.yaml"
+const config_yaml = "./config/config.yaml"
 const contract_url_yaml = "/var/hyperledger/brilliance-oracle/contract-url/contract-url.yaml"
 
 func initLogging() {
