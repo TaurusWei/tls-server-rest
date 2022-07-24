@@ -24,7 +24,7 @@ server:
     cert: /opt/go-projects/tls-server-rest/cert/admin.pem
     key: /opt/go-projects/tls-server-rest/cert/admin.key
 tls:
-  enable: true
+  enable: false
   server:
     cert: /opt/go-projects/tls-server-rest/cert/admin.pem
     key: /opt/go-projects/tls-server-rest/cert/admin.key

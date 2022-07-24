@@ -31,5 +31,5 @@ docker-cnccgm:
 
 # 软国密镜像
 docker:
-	docker build -t ${BP_RUN_SGM} -f ./script/docker/Dockerfile.scncc .
+	docker  build --platform=linux/amd64 -t ${BP_RUN_SGM} -f ./script/docker/Dockerfile.scncc .
 .PHONY: docker

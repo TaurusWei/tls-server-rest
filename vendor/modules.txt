@@ -1,3 +1,7 @@
+# github.com/PuerkitoBio/purell v1.1.0
+github.com/PuerkitoBio/purell
+# github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+github.com/PuerkitoBio/urlesc
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/gin-contrib/pprof v1.3.0 => ./third_party/github.com/gin-contrib/pprof
@@ -10,6 +14,14 @@ github.com/gin-gonic/gin/binding
 github.com/gin-gonic/gin/internal/bytesconv
 github.com/gin-gonic/gin/internal/json
 github.com/gin-gonic/gin/render
+# github.com/go-openapi/jsonpointer v0.17.0
+github.com/go-openapi/jsonpointer
+# github.com/go-openapi/jsonreference v0.19.0
+github.com/go-openapi/jsonreference
+# github.com/go-openapi/spec v0.19.0
+github.com/go-openapi/spec
+# github.com/go-openapi/swag v0.17.0
+github.com/go-openapi/swag
 # github.com/go-playground/locales v0.13.0
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
@@ -50,6 +62,10 @@ github.com/json-iterator/go
 github.com/leodido/go-urn
 # github.com/magiconair/properties v1.8.1
 github.com/magiconair/properties
+# github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
 # github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
 # github.com/miekg/pkcs11 v1.0.3
@@ -81,6 +97,10 @@ github.com/spf13/viper
 github.com/subosito/gotenv
 # github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 github.com/swaggo/files
+# github.com/swaggo/gin-swagger v1.3.1
+github.com/swaggo/gin-swagger
+# github.com/swaggo/swag v1.5.1
+github.com/swaggo/swag
 # github.com/tauruswei/go-netsign v0.0.0-20210719104843-ad19de70b31a => ./third_party/github.com/tauruswei/go-netsign
 github.com/tauruswei/go-netsign/netsign
 # github.com/thedevsaddam/gojsonq v2.3.0+incompatible
@@ -91,7 +111,7 @@ github.com/tjfoc/gmsm/sm3
 github.com/tjfoc/gmsm/sm4
 # github.com/tjfoc/gmtls v1.2.1 => ./internal/github.com/tjfoc/gmtls
 github.com/tjfoc/gmtls
-# github.com/ugorji/go/codec v1.1.7
+# github.com/ugorji/go/codec v1.1.13
 github.com/ugorji/go/codec
 # github.com/unrolled/secure v1.0.9 => ./third_party/github.com/unrolled/secure
 github.com/unrolled/secure
@@ -129,6 +149,12 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+golang.org/x/text/width
+# golang.org/x/tools v0.0.0-20191112195655-aa38f8e97acc
+golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/buildutil
+golang.org/x/tools/go/internal/cgo
+golang.org/x/tools/go/loader
 # google.golang.org/protobuf v1.26.0
 google.golang.org/protobuf/encoding/prototext
 google.golang.org/protobuf/encoding/protowire

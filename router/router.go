@@ -8,23 +8,24 @@ package router
  */
 
 import (
-	"github.com/gin-contrib/pprof"
-	"tls-server-rest/service"
-	//swaggerFiles "github.com/swaggo/files"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "tls-server-rest/docs"
+	"tls-server-rest/service"
 )
 
 // CreateRouter 生成路由
 func CreateRouter() *gin.Engine {
 	router := gin.Default()
-	pprof.Register(router)
+	// swagger
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//pprof.Register(router)
 	testGroup := router.Group("/test/")
 	testGroup.POST("/invokeTest", service.InvokeTest)
 
 	oracleGroup := router.Group("/oracle/")
-	// swagger
-	//oracleGroup.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//router.POST("/test/genP10/:keyType", service.GenP10)
+	//oracleGroup.POST("/genP10/:keyType", service.GenP10)
 	oracleGroup.POST("/invoke", service.Invoke)
 
 	return router

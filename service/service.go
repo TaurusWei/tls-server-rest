@@ -106,6 +106,13 @@ func combinStr(strs []string, sep string) string {
 	return strings.Trim(strings.Join(strs, sep), sep)
 }
 
+// @Summary 获取数据
+// @Produce  json
+// @Consumes  json
+// @Param QueryBaseInfo body string true "QueryBaseInfo"
+// @Success 200 {object} model.Envelope
+// @Failure 500 {object} model.Envelope
+// @Router /oracle/invoke [post]
 func Invoke(c *gin.Context) {
 
 	request := model.Envelope{}

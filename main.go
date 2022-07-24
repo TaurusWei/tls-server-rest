@@ -23,7 +23,7 @@ import (
 	"tls-server-rest/service"
 )
 
-const config_yaml = "./config/config.yaml"
+const config_yaml = "./config/configLocal.yaml"
 const contract_url_yaml = "/var/hyperledger/brilliance-oracle/contract-url/contract-url.yaml"
 
 func initLogging() {
@@ -53,8 +53,8 @@ func checkMem() {
 
 func init() {
 	// 从配置文件读取配置
-	config.InitConfig([]string{config_yaml, contract_url_yaml})
-	//config.InitConfig([]string{config_yaml})
+	//config.InitConfig([]string{config_yaml, contract_url_yaml})
+	config.InitConfig([]string{config_yaml})
 
 	// init sign cert
 	config.InitCert()
@@ -63,6 +63,14 @@ func init() {
 	initLogging()
 
 }
+
+// @title Golang Esign API
+// @version 1.0
+// @description  Golang api of demo
+// @termsOfService http://github.com
+// @contact.name API Support
+// @contact.url http://www.cnblogs.com
+// @contact.email ×××@qq.com
 func main() {
 	////数据库连接
 	//dao.OpenSqlDb()

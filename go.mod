@@ -6,15 +6,15 @@ replace github.com/tjfoc/gmsm v1.4.1 => ./internal/github.com/tjfoc/gmsm
 
 replace github.com/tjfoc/gmtls v1.2.1 => ./internal/github.com/tjfoc/gmtls
 
+replace github.com/hyperledger/fabric => ./third_party/github.com/hyperledger/fabric
+
+replace github.com/tauruswei/go-netsign => ./third_party/github.com/tauruswei/go-netsign
+
 replace github.com/gin-gonic/gin => ./third_party/github.com/gin-gonic/gin
 
 replace github.com/gin-contrib/sse => ./third_party/github.com/gin-contrib/sse
 
 replace github.com/gin-contrib/pprof v1.3.0 => ./third_party/github.com/gin-contrib/pprof
-
-replace github.com/hyperledger/fabric => ./third_party/github.com/hyperledger/fabric
-
-replace github.com/tauruswei/go-netsign => ./third_party/github.com/tauruswei/go-netsign
 
 replace github.com/unrolled/secure => ./third_party/github.com/unrolled/secure
 
@@ -33,6 +33,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.8.1
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
+	github.com/swaggo/gin-swagger v1.3.1
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/tjfoc/gmtls v1.2.1
